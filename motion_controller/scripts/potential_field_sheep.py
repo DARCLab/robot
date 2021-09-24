@@ -55,7 +55,7 @@ def avoid4_pose_cb(avoid4_pose_cb_msg):
 #---------------- Main -------------------
 def main():
     # Initalize node
-    rospy.init_node('potentialFieldController')
+    rospy.init_node('potentialFieldSheep')
 
     #Get parameters
     RobotID=rospy.get_param("RobotID")
@@ -74,44 +74,6 @@ def main():
 
     #Figure out all the obstacles (other robots)
     
-    if RobotID == 1:
-
-        if subToR2Pose:
-            secondString = '2'
-            fullString = firstString + secondString + thirdString #this allows each robot to know itself
-            rospy.Subscriber(fullString, PoseStamped, avoid1_pose_cb)
-            avoidR1 = True
-        else:
-            avoidR1 = False
-
-        if subToR3Pose:
-            secondString = '3'
-            fullString = firstString + secondString + thirdString #this allows each robot to know itself
-            rospy.Subscriber(fullString, PoseStamped, avoid2_pose_cb)
-            avoidR2 = True
-        else:
-            avoidR2 = False
-
-        if subToR4Pose:
-            secondString = '4'
-            fullString = firstString + secondString + thirdString #this allows each robot to know itself
-            rospy.Subscriber(fullString, PoseStamped, avoid3_pose_cb)
-            avoidR3 = True
-        else:
-            avoidR3 = False
-
-        if subToR5Pose:
-            secondString = '5'
-            fullString = firstString + secondString + thirdString #this allows each robot to know itself
-            rospy.Subscriber(fullString, PoseStamped, avoid4_pose_cb)
-            avoidR4 = True
-        else:
-            avoidR4 = False
-
-         
-        
-
-
     if RobotID == 2:
 
         if subToR1Pose:
@@ -274,6 +236,8 @@ def main():
             #Avoiding first obstacle
             global s
             global r
+            global h 
+            h = 0.5
             s = 0.25
             r = 0.1
             
@@ -292,9 +256,9 @@ def main():
                 if d_obs1 > s:
                     B1 = 0.0
                 elif (d_obs1< r) :
-                    B1 = 2000.00
+                    B1 = 4000.00
                 else:
-                    B1 = 900.00
+                    B1 = 1800.00
 
                 potential_x1 = -B1 *(s+r -  d_obs1)*cos(theta1)
                 potential_y1 = -B1 *(s+r -  d_obs1) *sin(theta1)
@@ -311,8 +275,10 @@ def main():
                 d_obs2 = np.sqrt(x_error_obs2**2+ y_error_obs2**2)
                 theta2 =atan2(y_error_obs2,x_error_obs2)
 
-                if d_obs2 > s:
+                if (d_obs2>h):
                     B1 = 0.0
+                elif (d_obs2 > s) and (d_obs2<h):
+                    B1 = -500.00
                 elif (d_obs2< r) :
                     B1 = 2000.00
                 else:
@@ -333,8 +299,10 @@ def main():
                 d_obs3 = np.sqrt(x_error_obs3**2+ y_error_obs3**2)
                 theta3=atan2(y_error_obs3,x_error_obs3)
 
-                if d_obs3 > s:
+                if (d_obs3>h):
                     B1 = 0.0
+                elif (d_obs3 > s) and (d_obs3<h):
+                    B1 = -500.00
                 elif (d_obs3< r) :
                     B1 = 2000.00
                 else:
@@ -355,8 +323,10 @@ def main():
                 d_obs4 = np.sqrt(x_error_obs4**2+ y_error_obs4**2)
                 theta4=atan2(y_error_obs4,x_error_obs4)
 
-                if d_obs4 > s:
+                if (d_obs4>h):
                     B1 = 0.0
+                elif (d_obs4 > s) and (d_obs4<h):
+                    B1 = -500.00
                 elif (d_obs4< r) :
                     B1 = 2000.00
                 else:
