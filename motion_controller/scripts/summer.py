@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+
+import rospy #include <ros/ros.h> cpp equivalent
+from geometry_msgs.msg import Twist
+ 
+#---------------Global Variables------------
+global Input_pos_Vel
+Input_pos_Vel = Twist()
+
+global Input_pot_Vel
+Input_pot_Vel = Twist()
+#-------------Functions --------------------
+
+def pos_controller_cb(pos_cb_msg):
+    global Input_pos_Vel
+    Input_pos_Vel = pos_cb_msg
+
+def pot_controller_cb(pot_cb_msg):
+    global Input_pot_Vel
+    Input_pot_Vel = pot_cb_msg
+
+def main():
+    # Initalize node
+    rospy.init_node('summer')
+
+    # Set up subscriptions
+    rospy.Subscriber("posVelocityCMD", Twist, pos_controller_cb)
+    rospy.Subscriber("potFieldVelocityCMD", Twist, pot_controller_cb)
+    # Set up publishers
+    local_vel_pub = rospy.Publisher('totalVelocityCMD', Twist, queue_size=100)
+
+    global rate
+    rate = rospy.Rate(20)
+
+    totalVel=Twist()
+
+    # Main loop after Initalization
+    while not rospy.is_shutdown():
+
+            totalVel.linear.x = Input_pos_Vel.linear.x + Input_pot_Vel.linear.x #positioncontrol - potentialField
+            totalVel.linear.y = Input_pos_Vel.linear.y + Input_pot_Vel.linear.y
+            totalVel.angular.z = Input_pos_Vel.angular.z
+            print "Velocity Inupt X:", totalVel.linear.x, "Y:",totalVel.linear.y, "Yaw:", totalVel.angular.z 
+            local_vel_pub.publish(totalVel)
+            
+            
+            rate.sleep()
+
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except rospy.ROSInterruptException:
+        pass
+
+    

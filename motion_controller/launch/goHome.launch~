@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name = "RobotID" default = "1"/>
+  <arg name = "xd" default = "0.5"/>
+  <arg name = "yd" default = "0.5"/>
+  <arg name = "yawd" default = "0"/>
+  <rosparam param="waypoints_x">[0.5,2]</rosparam>
+  <rosparam param="waypoints_y">[0.5,1]</rosparam>
+  <group ns = "Robot_$(arg RobotID)">
+  <node name="waypoints" pkg="motion_controller" type="waypoint.py" output="log"/>
+  <node name="positionController" pkg="motion_controller" type="position_control.py" output="screen"/>
+    <param name = "RobotID" value = "$(arg RobotID)"/>
+    <param name = "xd" value = "$(arg xd)"/>
+    <param name = "yd" value = "$(arg yd)"/>
+    <param name = "yawd" value = "$(arg yawd)"/>
+<!--<node name="potentialFieldController" pkg="motion_controller" type="potential_field.py" output="log"/> -->
+    <param name = "RobotID" value = "$(arg RobotID)"/>
+    
+  <node name="summer" pkg="motion_controller" type="summer.py" output="log"/>
+  <node name="velocityControlDynamixel" pkg="omni_wheel" type="velocityControlDynamixel"/>
+  </group>
+</launch>

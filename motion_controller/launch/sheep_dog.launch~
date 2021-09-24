@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name = "RobotID" default = "1"/>
+  <group ns = "Robot_$(arg RobotID)">
+  <param name = "RobotID" value = "$(arg RobotID)"/>
+  <node name="move_dog" pkg="motion_controller" type="move_master.py" output="screen"/>
+  <node name="velocityControlDynamixel" pkg="omni_wheel" type="velocityControlDynamixel"/>
+  <node name = "teleop_twist_keyboard" pkg= "teleop_twist_keyboard" type= "teleop_twist_keyboard.py"/>
+  </group>
+</launch>

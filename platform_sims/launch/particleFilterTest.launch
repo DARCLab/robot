@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="PlumeType" default="gaussian"/>
+  <arg name="Model" default="gaussian"/>
+
+  <arg name="plotGaussian" default="True"/>
+
+  <param name="startTest"        type="bool"  value="False" />
+
+  <!-- Plume parameters -->
+  <param name="QPlume"           type="double"  value="0.000077" /> #  ppm     release rate
+  <param name="vPlume"           type="double"  value="0.447"    /> #  m/s      velocity
+  <param name="DyPlume"          type="double"  value="0.001"    /> #  m        diffusion along y
+  <param name="DzPlume"          type="double"  value="0.0005"   /> #  m        diffusion along z
+
+  <!-- Plume location -->
+  <param name="xPlume"           type="double"  value="0.3048"   /> # m
+  <param name="yPlume"           type="double"  value="1.3716"   /> # m
+  <param name="zPlume"           type="double"  value="0"        /> # m
+  <param name="careAboutZ"       type="bool"    value="False"     /> # boolean
+  <param name="thetaPlume"       type="double"  value="0"        /> # degrees (both methods need to know the wind direction)
+
+  <param name="sensorRate"       type="double"  value="5"        /> # Hz
+
+  <!-- <include file="$(find mocap_optitrack)/launch/mocap.launch"/> -->
+
+
+  <!-- Motion Capture Gaussian Plotter -->
+  <node name="plotGaussianParticleMocap" pkg="platform_sims" type="plotGaussianParticleMocap.py" output="screen" if="$(eval plotGaussian)"/>
+
+  <!-- Fake position publisher -->
+  <node name="fakeRobotPoseRaster" pkg="platform_sims" type="fakeRobotPoseRaster.py" output="screen">
+    <param name="xmin"     type="double"  value="0.1524"   /> # m
+    <param name="xmax"     type="double"  value="4.1148"   /> # m
+    <param name="Nx"       type="double"  value="5"        />
+    <param name="ymin"     type="double"  value="0.1524"   /> # m
+    <param name="ymax"     type="double"  value="2.5908"   /> # m
+    <param name="Ny"       type="double"  value="5"        />
+    <param name="stayTime" type="double"  value="1"        />
+  </node>
+
+  <!-- Robot_1 -->
+  <group ns="Robot_1">
+    <node name="gaussianSensorPlatform" pkg="platform_sims" type="gaussianSensorPlatform" output="screen"/>
+
+    <include file="$(find particle_filter)/launch/particle_filter_params.launch">
+      <arg name="X_u"         default="4.2672"/>
+      <arg name="X_n"         default="0.15"/>
+
+      <arg name="Y_u"         default="2.7432"/>
+      <arg name="Y_n"         default="0.15"/>
+
+      <arg name="Z_u"         default="0"/>
+      <arg name="Z_l"         default="0"/>
+      <arg name="Z_n"         default="0"/>
+
+      <arg name="Q_u"         default="0.001"/>
+      <arg name="Q_l"         default="0.00001"/>
+      <arg name="Q_n"         default="0.00005"/>
+
+      <arg name="Theta_u" default="0.1"/>
+      <arg name="Theta_l" default="-0.1"/>
+      <arg name="Theta_n" default="0"/>
+
+      <!-- Just for Gaussian -->
+      <arg name="Dy_u" default="0.001"/>
+      <arg name="Dy_l" default="0.001"/>
+      <arg name="Dy_n" default="0"/>
+
+      <arg name="Dz_u" default="0.0005"/>
+      <arg name="Dz_l" default="0.0005"/>
+      <arg name="Dz_n" default="0"/>
+
+      <arg name="quadID"      default="1"/>
+      <arg name="printOutput" default="screen"/>
+      <arg name="PlumeType"   default="$(arg PlumeType)"/>
+      <arg name="Model"       default="$(arg Model)"/>
+      <arg name="Platform"    default="True"/>
+    </include>
+  </group>
+
+</launch>

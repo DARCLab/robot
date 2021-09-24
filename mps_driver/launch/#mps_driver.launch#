@@ -1,0 +1,10 @@
+</launch>  <launch>
+  <arg name="log" default="log"/>
+  <node pkg="mps_driver" type="mps_driver" name="mps_driver" output="$(arg log)" respawn="true"/>
+    <param name="device" value="/dev/mps" type="string"/>
+    <param name="port" value="0" type="int"/>
+    <param name="frequency" value="1" type="double"/>
+    
+<!-- <node pkg="rosbag" type="record" args="-O mps_data_launch.bag mps_data" name="mps_record_data"/> --> 
+
+</launch>

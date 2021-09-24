@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+
+import rospy
+from geometry_msgs.msg import PoseStamped
+import numpy as np
+
+
+#----------- Global Variables--------
+global desired_pose
+desired_pose = PoseStamped()
+global robot_pose
+robot_pose = PoseStamped()
+
+#---------- Functions --------
+def robot_pose_cb(pose_cb_msg):
+    global robot_pose
+    robot_pose = pose_cb_msg
+
+def main():
+    #Initialize node
+    rospy.init_node('waypoints')
+
+    #Get parameters
+    xd_vec = rospy.get_param("/waypoints_x")
+    yd_vec = rospy.get_param("/waypoints_y")
+    RobotID = rospy.get_param("RobotID")
+
+    #Set up subscriptions
+    firstString = "/mocap_node/Robot_"
+    secondString = str(RobotID)
+    thirdString = "/pose"
+    fullString = firstString + secondString + thirdString
+    rospy.Subscriber(fullString, PoseStamped, robot_pose_cb)
+
+    #Set up publishers
+    desired_pos_pub = rospy.Publisher("desiredPos",PoseStamped,queue_size = 100)
+
+    #Initialize Variables
+    global rate
+    rate = rospy.Rate(20)
+    global robot_pose
+    DesirePos = PoseStamped()
+
+    while not rospy.is_shutdown():
+        print robot_pose
+        x = robot_pose.pose.position.x
+        y = robot_pose.pose.position.y
+
+        0 :
+                x = robot_pose.pose.position.x
+                y = robot_pose.pose.position.y
+                DesirePos.pose.position.x = xd_vec[j]
+                DesirePos.pose.position.y = yd_vec[j]
+                x_error = xd_vec[j] - x
+                y_error = yd_vec[j] - y
+                norm_error = np.sqrt(x_error**2+ y_error**2)
+                desired_pos_pub.publish(DesirePos)
+                print "Desired Position X:", DesirePos.pose.position.x, "Y:", DesirePos.pose.position.y
+                print "Current Position X:", x, "Y:", y
+                rate.sleep()
+
+if __name__ == '__main__':
+    try:
+        main()
+    except rospy.ROSInterruptException:
+        pass

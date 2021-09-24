@@ -1,0 +1,9 @@
+<launch>
+  <arg name="log" default="log"/>
+  <param name="a_exp" value"0.6" type="double"/>
+  <param name="b_exp" value="4.429" type="double"/>
+
+  <node pkg="mps_driver" type="mox_driver" name="mox_driver" output="$(arg log)" respawn="true">
+  </node>
+  
+</launch>

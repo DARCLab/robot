@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="RobotID" default="1"/>
+  
+  <!-- Robot_# -->
+  <group ns="Robot_$(arg RobotID)">
+    <node name="gaussianSensorPlatform" pkg="platform_sims" type="gaussianSensorPlatform.py" output="screen">
+        <param name="RobotID" value="$(arg RobotID)"/>
+    </node>
+  </group>
+
+</launch>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name = "RobotID" default = "1"/>
+  <node name="master" pkg="motion_controller" type="master.py" output="screen"/>
+    <param name = "RobotID" value = "$(arg RobotID)"/>  
+</launch>
