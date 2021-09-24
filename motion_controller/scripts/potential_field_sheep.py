@@ -9,6 +9,9 @@ import numpy as np
 from math import pi,sin, cos, atan2,exp 
 
 # ------------- Global Variables ------------
+global Input_vel
+Input_vel = Twist()
+
 global robot_pose
 robot_pose = PoseStamped()
 
@@ -212,7 +215,7 @@ def main():
 
 
     # Set up publishers
-    pot_vel_pub = rospy.Publisher('potFieldVelocityCMD', Twist, queue_size=100)
+    local_vel_pub = rospy.Publisher('totalVelocityCMD', Twist, queue_size=100)
 
     global rate
     rate = rospy.Rate(20)
@@ -236,7 +239,9 @@ def main():
             #Avoiding first obstacle
             global s
             global r
-            global h 
+            global h
+            global n
+            n=0.75
             h = 0.5
             s = 0.25
             r = 0.1
@@ -253,15 +258,15 @@ def main():
                 d_obs1 = np.sqrt(x_error_obs1**2+ y_error_obs1**2)
                 theta1=atan2(y_error_obs1,x_error_obs1)
 
-                if d_obs1 > s:
+                if d_obs1 > n:
                     B1 = 0.0
                 elif (d_obs1< r) :
                     B1 = 4000.00
                 else:
                     B1 = 1800.00
 
-                potential_x1 = -B1 *(s+r -  d_obs1)*cos(theta1)
-                potential_y1 = -B1 *(s+r -  d_obs1) *sin(theta1)
+                potential_x1 = -B1 *(n+r -  d_obs1)*cos(theta1)
+                potential_y1 = -B1 *(n+r -  d_obs1) *sin(theta1)
             
             potential_x2 = 0
             potential_y2 = 0
@@ -340,7 +345,7 @@ def main():
             Input_pot_Vel.linear.y = potential_y1 + potential_y2 + potential_y3 + potential_y4
 
 
-            pot_vel_pub.publish(Input_pot_Vel)
+            local_vel_pub.publish(Input_pot_Vel)
             
             print "Input Potential Field Velocities X: ",Input_pot_Vel.linear.x , "Y: " , Input_pot_Vel.linear.y
             rate.sleep()
