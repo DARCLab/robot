@@ -9,6 +9,7 @@ from geometry_msgs.msg import TwistStamped
 from geometry_msgs.msg import PoseStamped
 from quadnodes.msg import gaussian
 from olfaction_msgs.msg import gas_sensor
+from tf.transformations import quaternion_from_euler
 
 from BRW_functions import biasedRandomWalk, moveRobot
 
@@ -53,6 +54,7 @@ def main():
 
     global_waypoint_pub = rospy.Publisher('desiredPos', PoseStamped, queue_size=100)
 
+    desiredYaw = 0
     minLimX             = rospy.get_param("BRW/minLimX")          #  m
     maxLimX             = rospy.get_param("BRW/maxLimX")          #  m
     minLimY             = rospy.get_param("BRW/minLimY")          #  m
@@ -149,7 +151,11 @@ def main():
         DesiredWaypoint.pose.position.x = xWaypoint
         DesiredWaypoint.pose.position.y = yWaypoint
         DesiredWaypoint.pose.position.z = 0 # doesn't matter for omni wheel robot (whats it going to do fly?? Am I right? sighhhhh)
-
+        xq, yq, zq, wq = quaternion_from_euler(0,0,desiredYaw)
+        DesiredWaypoint.pose.orientation.x = xq
+        DesiredWaypoint.pose.orientation.y = yq
+        DesiredWaypoint.pose.orientation.z = zq
+        DesiredWaypoint.pose.orientation.w = wq
 
 
         global_waypoint_pub.publish(DesiredWaypoint);
