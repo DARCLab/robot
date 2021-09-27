@@ -241,11 +241,11 @@ def main():
             y = robot_pose.pose.position.y
             (roll, pitch, yaw) = euler_from_quaternion([robot_pose.pose.orientation.x,robot_pose.pose.orientation.y,robot_pose.pose.orientation.z,robot_pose.pose.orientation.w])
             yaw_error = yawd - yaw
-            Input_pos_Vel.angular.z =(Kp*(yaw_error)+ Kd * (yaw_error - yaw_errori)) * 1.5
-            if Input_pos_Vel.angular.z >= 460:
-               Input_pos_Vel.angular.z = 460
-            elif (Input_pos_Vel.angular.z <= -460):
-               Input_pos_Vel.angular.z = -460
+            Input_pot_Vel.angular.z =(Kp*(yaw_error)+ Kd * (yaw_error - yaw_errori)) * 1.5
+            if Input_pot_Vel.angular.z >= 460:
+               Input_pot_Vel.angular.z = 460
+            elif (Input_pot_Vel.angular.z <= -460):
+               Input_pot_Vel.angular.z = -460
 
             if abs((yaw*(180/pi))) < 10: 
 

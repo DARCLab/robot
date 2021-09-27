@@ -58,8 +58,7 @@ def main():
     Input_pos_Vel.linear.y = 0
     Input_pos_Vel.linear.z = 0
     Input_pos_Vel.angular.z = 0
-    
-    yawd = 0
+   
 
     x_errori = 0
     x_error_int = 0
