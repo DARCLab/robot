@@ -3,7 +3,7 @@
   <arg name = "RobotID" default = "1"/>
   <group ns = "Robot_$(arg RobotID)">
   <param name = "RobotID" value = "$(arg RobotID)"/>
-  <node name="waypoints" pkg="motion_controller" type="waypoint.py" output="log"/>
+  <node name="waypoints" pkg="motion_controller" type="waypoint.py" output="screen"/>
   <node name="positionController" pkg="motion_controller" type="position_control.py" output="screen"/>
   
   <node name="potentialFieldController" pkg="motion_controller" type="potential_field.py" output="log"/>  

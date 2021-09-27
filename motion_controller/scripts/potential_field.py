@@ -270,6 +270,7 @@ def main():
             x = robot_pose.pose.position.x
             y = robot_pose.pose.position.y
             (roll, pitch, yaw) = euler_from_quaternion([robot_pose.pose.orientation.x,robot_pose.pose.orientation.y,robot_pose.pose.orientation.z,robot_pose.pose.orientation.w])
+            
 
             #Avoiding first obstacle
             global s
@@ -366,9 +367,11 @@ def main():
                 potential_y4 = -B1 *(s+r -  d_obs4) *sin(theta4)
 
 
-            Input_pot_Vel.linear.x = potential_x1 + potential_x2 + potential_x3 +potential_x4
-            Input_pot_Vel.linear.y = potential_y1 + potential_y2 + potential_y3 + potential_y4
+            xVelg = potential_x1 + potential_x2 + potential_x3 +potential_x4
+            yVelg = potential_y1 + potential_y2 + potential_y3 + potential_y4
 
+            Input_pot_Vel.linear.x = cos(yaw) * xVelg + sin(yaw) * yVelg
+            Input_pot_Vel.linear.y = -sin(yaw) * xVelg + cos(yaw) * yVelg
 
             pot_vel_pub.publish(Input_pot_Vel)
             

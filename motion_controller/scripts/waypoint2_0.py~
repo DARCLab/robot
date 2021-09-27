@@ -3,7 +3,7 @@
 import rospy
 from geometry_msgs.msg import PoseStamped
 import numpy as np
-
+from tf.transformations import quaternion_from_euler
 
 #----------- Global Variables--------
 global desired_pose
@@ -21,8 +21,9 @@ def main():
     rospy.init_node('waypoints')
 
     #Get parameters
-    xd_vec = rospy.get_param("/waypoints_x")
-    yd_vec = rospy.get_param("/waypoints_y")
+    xd_vec = rospy.get_param("waypoints_x")
+    yd_vec = rospy.get_param("waypoints_y")
+    yawd_vec = rospy.get_param("waypoints_yaw")
     RobotID = rospy.get_param("RobotID")
 
     #Set up subscriptions
@@ -42,21 +43,33 @@ def main():
     DesirePos = PoseStamped()
 
     while not rospy.is_shutdown():
-        print robot_pose
+        # print robot_pose
         x = robot_pose.pose.position.x
         y = robot_pose.pose.position.y
 
-        0 :
+        for j in range(len(xd_vec)):
+            x = robot_pose.pose.position.x
+            y = robot_pose.pose.position.y
+            x_error = xd_vec[j] - x
+            y_error = yd_vec[j] - y
+            norm_error = np.sqrt(x_error**2+ y_error**2)
+            while not rospy.is_shutdown() and norm_error > 0.01 :
                 x = robot_pose.pose.position.x
                 y = robot_pose.pose.position.y
                 DesirePos.pose.position.x = xd_vec[j]
                 DesirePos.pose.position.y = yd_vec[j]
+                (xq, yq, zq, wq) = quaternion_from_euler(0,0,yawd_vec[j])
+                DesirePos.pose.orientation.x = xq
+                DesirePos.pose.orientation.y = yq
+                DesirePos.pose.orientation.z = zq
+                DesirePos.pose.orientation.w = wq
                 x_error = xd_vec[j] - x
                 y_error = yd_vec[j] - y
                 norm_error = np.sqrt(x_error**2+ y_error**2)
                 desired_pos_pub.publish(DesirePos)
-                print "Desired Position X:", DesirePos.pose.position.x, "Y:", DesirePos.pose.position.y
-                print "Current Position X:", x, "Y:", y
+                # print "Desired Position X:", DesirePos.pose.position.x, "Y:", DesirePos.pose.position.y
+                # print "Current Position X:", x, "Y:", y
+                print(xd_vec[j], yd_vec[j], yawd_vec[j])
                 rate.sleep()
 
 if __name__ == '__main__':
