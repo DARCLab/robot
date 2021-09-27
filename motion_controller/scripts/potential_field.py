@@ -275,8 +275,8 @@ def main():
             #Avoiding first obstacle
             global s
             global r
-            s = 0.25
-            r = 0.1
+            s = 0.3
+            r = 0.2
             
             potential_x1 = 0
             potential_y1 = 0
