@@ -297,7 +297,7 @@ def main():
                 if (d_obs2>h):
                     B1 = 0.0
                 elif (d_obs2 > s) and (d_obs2<h):
-                    B1 = -500.00
+                    B1 = -800.00
                 elif (d_obs2< r) :
                     B1 = 2000.00
                 else:
@@ -321,7 +321,7 @@ def main():
                 if (d_obs3>h):
                     B1 = 0.0
                 elif (d_obs3 > s) and (d_obs3<h):
-                    B1 = -500.00
+                    B1 = -800.00
                 elif (d_obs3< r) :
                     B1 = 2000.00
                 else:
@@ -345,7 +345,7 @@ def main():
                 if (d_obs4>h):
                     B1 = 0.0
                 elif (d_obs4 > s) and (d_obs4<h):
-                    B1 = -500.00
+                    B1 = -800.00
                 elif (d_obs4< r) :
                     B1 = 2000.00
                 else:
@@ -359,11 +359,11 @@ def main():
             yVelg = potential_y1 + potential_y2 + potential_y3 + potential_y4
             
             if (np.random.uniform(0.0,1.0) < 0.8):
-                Input_pos_Vel.linear.x = Input_pos_Vel.linear.x* 0.25
-                Input_pos_Vel.linear.y = Input_pos_Vel.linear.y* 0.25            
+                Input_pos_Vel.linear.x = Input_pos_Vel.linear.x* 0.1
+                Input_pos_Vel.linear.y = Input_pos_Vel.linear.y* 0.1            
             else:
-                Input_pos_Vel.linear.x = Input_pos_Vel.linear.x* np.random.uniform(0.0,1.0)
-                Input_pos_Vel.linear.y = Input_pos_Vel.linear.y* np.random.uniform(0.0,1.0)
+                Input_pos_Vel.linear.x = Input_pos_Vel.linear.x* np.random.uniform(0.0,0.25)
+                Input_pos_Vel.linear.y = Input_pos_Vel.linear.y* np.random.uniform(0.0,0.25)
 
             Input_pot_Vel.linear.x = (cos(yaw) * xVelg + sin(yaw) * yVelg) + Input_pos_Vel.linear.x
             Input_pot_Vel.linear.y = -sin(yaw) * xVelg + cos(yaw) * yVelg + Input_pos_Vel.linear.y
