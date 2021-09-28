@@ -256,8 +256,8 @@ def main():
             global h
             global n
             n=0.5
-            h = 0.5
-            s = 0.25
+            h = 3.0
+            s = 0.1
             r = 0.1
             
             potential_x1 = 0
@@ -297,9 +297,9 @@ def main():
                 if (d_obs2>h):
                     B1 = 0.0
                 elif (d_obs2 > s) and (d_obs2<h):
-                    B1 = -800.00
+                    B1 = -1000.00
                 elif (d_obs2< r) :
-                    B1 = 2000.00
+                    B1 = 1000.00
                 else:
                     B1 = 900.00
 
@@ -321,9 +321,9 @@ def main():
                 if (d_obs3>h):
                     B1 = 0.0
                 elif (d_obs3 > s) and (d_obs3<h):
-                    B1 = -800.00
+                    B1 = -1000.00
                 elif (d_obs3< r) :
-                    B1 = 2000.00
+                    B1 = 1000.00
                 else:
                     B1 = 900.00
 
@@ -345,9 +345,9 @@ def main():
                 if (d_obs4>h):
                     B1 = 0.0
                 elif (d_obs4 > s) and (d_obs4<h):
-                    B1 = -800.00
+                    B1 = -1000.00
                 elif (d_obs4< r) :
-                    B1 = 2000.00
+                    B1 = 1000.00
                 else:
                     B1 = 900.00
 
