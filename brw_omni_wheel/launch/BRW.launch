@@ -1,13 +1,14 @@
 <?xml version="1.0"?>
 <launch>
 
+  <arg name="gauss1" default="False"/>
+  <arg name="gaden1" default="False"/>
+
   <arg name="subToR1Pose" default="True"/>
   <arg name="subToR2Pose" default="False"/>
   <arg name="subToR3Pose" default="False"/>
   <arg name="subToR4Pose" default="False"/>
   <arg name="subToR5Pose" default="False"/>
-
-  <arg name="plumeType"   default="1"/> 1 = gaussian, 2 = gaden, 3 = MPS
 
   <include file="$(find mocap_optitrack)/launch/mocap.launch"/>
 
@@ -17,21 +18,8 @@
   <param name = "subToR4Pose" value = "$(arg subToR4Pose)" />
   <param name = "subToR5Pose" value = "$(arg subToR5Pose)" />
 
-  <!-- Plume parameters -->
-  <param name="QPlume"            type="double"  value="0.000077" /> #  ppm     release rate
-  <param name="vPlume"            type="double"  value="0.447"    /> #  m/s      velocity
-  <param name="DyPlume"           type="double"  value="0.01"    /> #  m        diffusion along y
-  <param name="DzPlume"           type="double"  value="0.0005"   /> #  m        diffusion along z
-
-  <!-- Plume location -->
-  <param name="xPlume"            type="double"  value="0.3048"   /> # m
-  <param name="yPlume"            type="double"  value="1.3716"   /> # m
-  <param name="zPlume"            type="double"  value="0"        /> # m
-  <param name="careAboutZ"        type="bool"    value="False"    /> # boolean
-  <param name="thetaPlume"        type="double"  value="0"        /> # degrees (both methods need to know the wind direction)
-
-  <param name="plumeType"         type="int"     value="1"        /> # 1 = gaussian, 2 = gaden, 3 = MPS
-  <param name="sensorRate"        type="int"     value="$(arg plumeType)"/>
+  <include file="$(find plume_sims)/launch/gauss1.launch" if="$(eval gauss1)"/>
+  <include file="$(find plume_sims)/launch/gaden1.launch" if="$(eval gaden1)"/>
 
   <node name="plotRobots" pkg="brw_omni_wheel" type="plotGaussianAndRobots.py" output="screen"/>
 

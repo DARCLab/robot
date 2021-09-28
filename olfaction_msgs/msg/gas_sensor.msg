@@ -63,4 +63,6 @@ uint8 raw_units     # Measurement units (e.g. ppm, volts, ohm)
 float64 raw_air     # Sensor output for clean air
 float64 calib_A     # Calibration constant. Its exact meaning depends on the sensor
 float64 calib_B     # Calibration constant. Its exact meaning depends on the sensor
-
+float64 local_x
+float64 local_y
+float64 local_z
