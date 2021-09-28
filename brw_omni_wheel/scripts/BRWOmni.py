@@ -9,7 +9,6 @@ from geometry_msgs.msg import TwistStamped
 from geometry_msgs.msg import PoseStamped
 from quadnodes.msg import gaussian
 from olfaction_msgs.msg import gas_sensor
-from tf.transformations import quaternion_from_euler
 
 from BRW_functions import biasedRandomWalk, moveRobot
 
@@ -54,7 +53,6 @@ def main():
 
     global_waypoint_pub = rospy.Publisher('desiredPos', PoseStamped, queue_size=100)
 
-    desiredYaw = 0
     minLimX             = rospy.get_param("BRW/minLimX")          #  m
     maxLimX             = rospy.get_param("BRW/maxLimX")          #  m
     minLimY             = rospy.get_param("BRW/minLimY")          #  m
@@ -74,10 +72,13 @@ def main():
     xyzError = [0, 0, 0]
     justHitWaypoint = False
     firstWaypointFlag = False
+    optimalTimeToWaypoint = 20
+    maxVelocity = 0.8
 
     DesiredWaypoint = PoseStamped()
 
     waypointStartTime = rospy.get_rostime()
+    optimalTimeToWaypointTimer = rospy.get_rostime()
 
     rate = rospy.Rate(30)
 
@@ -127,6 +128,8 @@ def main():
                     previousBias = np.arctan2((yRobotDesired-current_reading_full_data_gauss.y),(xRobotDesired-current_reading_full_data_gauss.x))
                     #Only move randomly once
                     firstWaypointFlag = True
+                    optimalTimeToWaypointTimer = rospy.get_rostime()
+
                 else: # Start bias random walk
                     if plumeType == 1:
                         currentReading = current_reading_full_data_gauss.ppm
@@ -138,6 +141,14 @@ def main():
 
                     previousReading = currentReading
                     previousBias = bias
+                    optimalTimeToWaypointTimer = rospy.get_rostime()
+
+                if plumeType == 1:
+                    waypointDistance = sqrt( (xWaypoint - current_reading_full_data_gauss.x)**2 + (yWaypoint - current_reading_full_data_gauss.x)**2 )
+                if plumeType == 2:
+                    waypointDistance = sqrt( (xWaypoint - current_reading_full_data_gaden.local_x)**2 + (yWaypoint - current_reading_full_data_gaden.local_x)**2 )
+
+                optimalTimeToWaypoint = waypointDistance/maxVelocity
 
                 # print("")
                 # print("Moving to next waypoint")
@@ -145,17 +156,61 @@ def main():
                 # print("=======================")
 
                 justHitWaypoint = False
+
+        elif(rospy.get_rostime() - optimalTimeToWaypointTimer >= rospy.Duration(optimalTimeToWaypoint*1.5)):
+            if( not justHitWaypoint):
+                waypointStartTime = rospy.get_rostime()
+                justHitWaypoint = True;
+            if(rospy.get_rostime() - waypointStartTime >= rospy.Duration(stayTime)):
+                if not firstWaypointFlag:
+                    # Get first reading
+                    if plumeType == 1:
+                        previousReading = current_reading_full_data_gauss.ppm
+                    if plumeType == 2:
+                        previousReading = current_reading_full_data_gaden.raw
+                    xRobotDesired, yRobotDesired = moveRobot(current_reading_full_data_gauss.x, current_reading_full_data_gauss.y, stepSize, minLimX, maxLimX, minLimY, maxLimY)
+                    xWaypoint = xRobotDesired
+                    yWaypoint = yRobotDesired
+                    previousBias = np.arctan2((yRobotDesired-current_reading_full_data_gauss.y),(xRobotDesired-current_reading_full_data_gauss.x))
+                    #Only move randomly once
+                    firstWaypointFlag = True
+                    optimalTimeToWaypointTimer = rospy.get_rostime()
+
+                else: # Start bias random walk
+                    if plumeType == 1:
+                        currentReading = current_reading_full_data_gauss.ppm
+                    if plumeType == 2:
+                        currentReading = current_reading_full_data_gaden.raw
+                    xRobotDesired, yRobotDesired, slope, bias = biasedRandomWalk(current_reading_full_data_gauss.x, current_reading_full_data_gauss.y, previousReading, currentReading, biasRange, previousBias, stepSize, minLimX, maxLimX, minLimY, maxLimY)
+                    xWaypoint = xRobotDesired
+                    yWaypoint = yRobotDesired
+
+                    previousReading = currentReading
+                    previousBias = bias
+                    optimalTimeToWaypointTimer = rospy.get_rostime()
+
+                if plumeType == 1:
+                    waypointDistance = sqrt( (xWaypoint - current_reading_full_data_gauss.x)**2 + (yWaypoint - current_reading_full_data_gauss.x)**2 )
+                if plumeType == 2:
+                    waypointDistance = sqrt( (xWaypoint - current_reading_full_data_gaden.local_x)**2 + (yWaypoint - current_reading_full_data_gaden.local_x)**2 )
+
+                optimalTimeToWaypoint = waypointDistance/maxVelocity
+
+                # print("")
+                # print("Moving to next waypoint")
+                # print("")
+                # print("=======================")
+
+                justHitWaypoint = False
+
         else:
             justHitWaypoint = False
+            # optimalTimeToWaypointTimer = rospy.get_rostime()
 
         DesiredWaypoint.pose.position.x = xWaypoint
         DesiredWaypoint.pose.position.y = yWaypoint
         DesiredWaypoint.pose.position.z = 0 # doesn't matter for omni wheel robot (whats it going to do fly?? Am I right? sighhhhh)
-        xq, yq, zq, wq = quaternion_from_euler(0,0,desiredYaw)
-        DesiredWaypoint.pose.orientation.x = xq
-        DesiredWaypoint.pose.orientation.y = yq
-        DesiredWaypoint.pose.orientation.z = zq
-        DesiredWaypoint.pose.orientation.w = wq
+
 
 
         global_waypoint_pub.publish(DesiredWaypoint);
