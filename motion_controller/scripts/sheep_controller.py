@@ -12,6 +12,9 @@ from math import pi,sin, cos, atan2,exp
 global Input_vel
 Input_vel = Twist()
 
+global Input_pos_Vel
+Input_pos_Vel=Twist()
+
 global robot_pose
 robot_pose = PoseStamped()
 
@@ -54,6 +57,10 @@ def avoid4_pose_cb(avoid4_pose_cb_msg):
     global avoid4_pose
     avoid4_pose = avoid4_pose_cb_msg
 
+def pos_controller_cb(pos_cb_msg):
+    global Input_pos_Vel
+    Input_pos_Vel = pos_cb_msg
+
 
 #---------------- Main -------------------
 def main():
@@ -74,6 +81,7 @@ def main():
     thirdString = "/pose"
     fullString = firstString + secondString + thirdString #this allows each robot to know itself
     rospy.Subscriber(fullString, PoseStamped, robot_pose_cb)
+    rospy.Subscriber("posVelocityCMD", Twist, pos_controller_cb)
 
     #Figure out all the obstacles (other robots)
     
@@ -226,7 +234,7 @@ def main():
     Input_pot_Vel.linear.z = 0
     Input_pot_Vel.angular.z = 0
 
-    yaw_errori = 0
+
     Kd = 500
     Kp = 350
     yawd = 0
@@ -240,124 +248,126 @@ def main():
             x = robot_pose.pose.position.x
             y = robot_pose.pose.position.y
             (roll, pitch, yaw) = euler_from_quaternion([robot_pose.pose.orientation.x,robot_pose.pose.orientation.y,robot_pose.pose.orientation.z,robot_pose.pose.orientation.w])
-            yaw_error = yawd - yaw
-            Input_pot_Vel.angular.z =(Kp*(yaw_error)+ Kd * (yaw_error - yaw_errori)) * 1.5
-            if Input_pot_Vel.angular.z >= 460:
-               Input_pot_Vel.angular.z = 460
-            elif (Input_pot_Vel.angular.z <= -460):
-               Input_pot_Vel.angular.z = -460
+      
 
-            if abs((yaw*(180/pi))) < 10: 
+            #Avoiding first obstacle
+            global s
+            global r
+            global h
+            global n
+            n=0.5
+            h = 0.5
+            s = 0.25
+            r = 0.1
+            
+            potential_x1 = 0
+            potential_y1 = 0
+            if avoidR1:
+                x_obs1 = avoid1_pose.pose.position.x
+                y_obs1 = avoid1_pose.pose.position.y
 
-                #Avoiding first obstacle
-                global s
-                global r
-                global h
-                global n
-                n=0.75
-                h = 0.5
-                s = 0.25
-                r = 0.1
-                
-                potential_x1 = 0
-                potential_y1 = 0
-                if avoidR1:
-                    x_obs1 = avoid1_pose.pose.position.x
-                    y_obs1 = avoid1_pose.pose.position.y
+                x_error_obs1 = x_obs1-x
+                y_error_obs1 = y_obs1-y
 
-                    x_error_obs1 = x_obs1-x
-                    y_error_obs1 = y_obs1-y
+                d_obs1 = np.sqrt(x_error_obs1**2+ y_error_obs1**2)
+                theta1=atan2(y_error_obs1,x_error_obs1)
 
-                    d_obs1 = np.sqrt(x_error_obs1**2+ y_error_obs1**2)
-                    theta1=atan2(y_error_obs1,x_error_obs1)
+                if d_obs1 > n:
+                    B1 = 0.0
+                elif (d_obs1< r) :
+                    B1 = 4000.00
+                else:
+                    B1 = 1800.00
 
-                    if d_obs1 > n:
-                        B1 = 0.0
-                    elif (d_obs1< r) :
-                        B1 = 4000.00
-                    else:
-                        B1 = 1800.00
+                potential_x1 = -B1 *(n+r -  d_obs1)*cos(theta1)
+                potential_y1 = -B1 *(n+r -  d_obs1) *sin(theta1)
+            
+            potential_x2 = 0
+            potential_y2 = 0
+            if avoidR2:
+                x_obs2 = avoid2_pose.pose.position.x
+                y_obs2 = avoid2_pose.pose.position.y
 
-                    potential_x1 = -B1 *(n+r -  d_obs1)*cos(theta1)
-                    potential_y1 = -B1 *(n+r -  d_obs1) *sin(theta1)
-                
-                potential_x2 = 0
-                potential_y2 = 0
-                if avoidR2:
-                    x_obs2 = avoid2_pose.pose.position.x
-                    y_obs2 = avoid2_pose.pose.position.y
+                x_error_obs2 = x_obs2-x
+                y_error_obs2 = y_obs2-y
 
-                    x_error_obs2 = x_obs2-x
-                    y_error_obs2 = y_obs2-y
+                d_obs2 = np.sqrt(x_error_obs2**2+ y_error_obs2**2)
+                theta2 =atan2(y_error_obs2,x_error_obs2)
 
-                    d_obs2 = np.sqrt(x_error_obs2**2+ y_error_obs2**2)
-                    theta2 =atan2(y_error_obs2,x_error_obs2)
+                if (d_obs2>h):
+                    B1 = 0.0
+                elif (d_obs2 > s) and (d_obs2<h):
+                    B1 = -500.00
+                elif (d_obs2< r) :
+                    B1 = 2000.00
+                else:
+                    B1 = 900.00
 
-                    if (d_obs2>h):
-                        B1 = 0.0
-                    elif (d_obs2 > s) and (d_obs2<h):
-                        B1 = -500.00
-                    elif (d_obs2< r) :
-                        B1 = 2000.00
-                    else:
-                        B1 = 900.00
+                potential_x2 = -B1 *(s+r -  d_obs2)*cos(theta2)
+                potential_y2 = -B1 *(s+r -  d_obs2) *sin(theta2)
+            
+            potential_x3 = 0
+            potential_y3 = 0
+            if avoidR3:
+                x_obs3 = avoid3_pose.pose.position.x
+                y_obs3 = avoid3_pose.pose.position.y
 
-                    potential_x2 = -B1 *(s+r -  d_obs2)*cos(theta2)
-                    potential_y2 = -B1 *(s+r -  d_obs2) *sin(theta2)
-                
-                potential_x3 = 0
-                potential_y3 = 0
-                if avoidR3:
-                    x_obs3 = avoid3_pose.pose.position.x
-                    y_obs3 = avoid3_pose.pose.position.y
+                x_error_obs3 = x_obs3-x
+                y_error_obs3 = y_obs3-y
 
-                    x_error_obs3 = x_obs3-x
-                    y_error_obs3 = y_obs3-y
+                d_obs3 = np.sqrt(x_error_obs3**2+ y_error_obs3**2)
+                theta3=atan2(y_error_obs3,x_error_obs3)
 
-                    d_obs3 = np.sqrt(x_error_obs3**2+ y_error_obs3**2)
-                    theta3=atan2(y_error_obs3,x_error_obs3)
+                if (d_obs3>h):
+                    B1 = 0.0
+                elif (d_obs3 > s) and (d_obs3<h):
+                    B1 = -500.00
+                elif (d_obs3< r) :
+                    B1 = 2000.00
+                else:
+                    B1 = 900.00
 
-                    if (d_obs3>h):
-                        B1 = 0.0
-                    elif (d_obs3 > s) and (d_obs3<h):
-                        B1 = -500.00
-                    elif (d_obs3< r) :
-                        B1 = 2000.00
-                    else:
-                        B1 = 900.00
+                potential_x3 = -B1 *(s+r -  d_obs3)*cos(theta3)
+                potential_y3 = -B1 *(s+r -  d_obs3) *sin(theta3)
+            
+            potential_x4 = 0
+            potential_y4 = 0
+            if avoidR4:
+                x_obs4 = avoid4_pose.pose.position.x
+                y_obs4 = avoid4_pose.pose.position.y
 
-                    potential_x3 = -B1 *(s+r -  d_obs3)*cos(theta3)
-                    potential_y3 = -B1 *(s+r -  d_obs3) *sin(theta3)
-                
-                potential_x4 = 0
-                potential_y4 = 0
-                if avoidR4:
-                    x_obs4 = avoid4_pose.pose.position.x
-                    y_obs4 = avoid4_pose.pose.position.y
+                x_error_obs4 = x_obs4-x
+                y_error_obs4 = y_obs4-y
 
-                    x_error_obs4 = x_obs4-x
-                    y_error_obs4 = y_obs4-y
+                d_obs4 = np.sqrt(x_error_obs4**2+ y_error_obs4**2)
+                theta4=atan2(y_error_obs4,x_error_obs4)
 
-                    d_obs4 = np.sqrt(x_error_obs4**2+ y_error_obs4**2)
-                    theta4=atan2(y_error_obs4,x_error_obs4)
+                if (d_obs4>h):
+                    B1 = 0.0
+                elif (d_obs4 > s) and (d_obs4<h):
+                    B1 = -500.00
+                elif (d_obs4< r) :
+                    B1 = 2000.00
+                else:
+                    B1 = 900.00
 
-                    if (d_obs4>h):
-                        B1 = 0.0
-                    elif (d_obs4 > s) and (d_obs4<h):
-                        B1 = -500.00
-                    elif (d_obs4< r) :
-                        B1 = 2000.00
-                    else:
-                        B1 = 900.00
+                potential_x4 = -B1 *(s+r -  d_obs4)*cos(theta4)
+                potential_y4 = -B1 *(s+r -  d_obs4) *sin(theta4)
 
-                    potential_x4 = -B1 *(s+r -  d_obs4)*cos(theta4)
-                    potential_y4 = -B1 *(s+r -  d_obs4) *sin(theta4)
+            
+            xVelg = potential_x1 + potential_x2 + potential_x3 +potential_x4
+            yVelg = potential_y1 + potential_y2 + potential_y3 + potential_y4
+            
+            if (np.random.uniform(0.0,1.0) < 0.8):
+                Input_pos_Vel.linear.x = Input_pos_Vel.linear.x* 0.25
+                Input_pos_Vel.linear.y = Input_pos_Vel.linear.y* 0.25            
+            else:
+                Input_pos_Vel.linear.x = Input_pos_Vel.linear.x* np.random.uniform(0.0,1.0)
+                Input_pos_Vel.linear.y = Input_pos_Vel.linear.y* np.random.uniform(0.0,1.0)
 
-
-                Input_pot_Vel.linear.x = potential_x1 + potential_x2 + potential_x3 +potential_x4
-                Input_pot_Vel.linear.y = potential_y1 + potential_y2 + potential_y3 + potential_y4
-
-            yaw_errori = yaw_error
+            Input_pot_Vel.linear.x = (cos(yaw) * xVelg + sin(yaw) * yVelg) + Input_pos_Vel.linear.x
+            Input_pot_Vel.linear.y = -sin(yaw) * xVelg + cos(yaw) * yVelg + Input_pos_Vel.linear.y
+        
             local_vel_pub.publish(Input_pot_Vel)
             
             print "Input Potential Field Velocities X: ",Input_pot_Vel.linear.x , "Y: " , Input_pot_Vel.linear.y
