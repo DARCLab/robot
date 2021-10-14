@@ -256,8 +256,8 @@ def main():
             global h
             global n
             n=0.5
-            h = 3.0
-            s = 0.1
+            h = 1.5
+            s = 0.2
             r = 0.1
             
             potential_x1 = 0
@@ -297,14 +297,14 @@ def main():
                 if (d_obs2>h):
                     B1 = 0.0
                 elif (d_obs2 > s) and (d_obs2<h):
-                    B1 = -1000.00
+                    B1 =-50.00
                 elif (d_obs2< r) :
-                    B1 = 1000.00
+                    B1 = 1500.00
                 else:
-                    B1 = 900.00
+                    B1 =900.00
 
-                potential_x2 = -B1 *(s+r -  d_obs2)*cos(theta2)
-                potential_y2 = -B1 *(s+r -  d_obs2) *sin(theta2)
+                potential_x2 = -B1 *(h+r -  d_obs2)*cos(theta2)
+                potential_y2 = -B1 *(h+r -  d_obs2) *sin(theta2)
             
             potential_x3 = 0
             potential_y3 = 0
@@ -321,14 +321,14 @@ def main():
                 if (d_obs3>h):
                     B1 = 0.0
                 elif (d_obs3 > s) and (d_obs3<h):
-                    B1 = -1000.00
+                    B1 = -50.00
                 elif (d_obs3< r) :
-                    B1 = 1000.00
+                    B1 = 1500.00
                 else:
                     B1 = 900.00
 
-                potential_x3 = -B1 *(s+r -  d_obs3)*cos(theta3)
-                potential_y3 = -B1 *(s+r -  d_obs3) *sin(theta3)
+                potential_x3 = -B1 *(h+r -  d_obs3)*cos(theta3)
+                potential_y3 = -B1 *(h+r -  d_obs3) *sin(theta3)
             
             potential_x4 = 0
             potential_y4 = 0
@@ -345,14 +345,14 @@ def main():
                 if (d_obs4>h):
                     B1 = 0.0
                 elif (d_obs4 > s) and (d_obs4<h):
-                    B1 = -1000.00
+                    B1 = -50.00
                 elif (d_obs4< r) :
-                    B1 = 1000.00
+                    B1 = 1500.00
                 else:
                     B1 = 900.00
 
-                potential_x4 = -B1 *(s+r -  d_obs4)*cos(theta4)
-                potential_y4 = -B1 *(s+r -  d_obs4) *sin(theta4)
+                potential_x4 = -B1 *(h+r -  d_obs4)*cos(theta4)
+                potential_y4 = -B1 *(h+r -  d_obs4) *sin(theta4)
 
             
             xVelg = potential_x1 + potential_x2 + potential_x3 +potential_x4
