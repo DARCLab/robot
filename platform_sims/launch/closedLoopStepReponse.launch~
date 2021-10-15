@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name = "RobotID" default = "1"/>
+
+  <param name="startTest" type="bool"  value="False"   />
+  <group ns = "Robot_$(arg RobotID)">
+    <param name = "RobotID" value = "$(arg RobotID)"/>    
+
+    <!--include file="$(find mocap_optitrack)/launch/mocap.launch"/-->
+
+    <node name="closedLoopStepResponse" pkg="platform_sims" type="closedLoopStepResponse.py" output="screen"/>
+    <node name="positionController" pkg="motion_controller" type="position_control2_0.py" output="log"/>
+    <node name="summer" pkg="motion_controller" type="summer.py" output="log"/>
+    <node name="dynamexiels" pkg="omni_wheel" type="velocityControlDynamixel" output="log"/>
+
+  </group>
+</launch>

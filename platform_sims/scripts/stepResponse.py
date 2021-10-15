@@ -49,11 +49,11 @@ def main():
     local_vel_pub = rospy.Publisher('totalVelocityCMD', Twist, queue_size=10)
     startTestFlag = False
 
-    dynaToRad = 0.023981 
-    Step = 5 # rads
-    Step = Step/dynaToRad # convert it to dynamexiel commands
-    testTime = 1.0
-    timeBeforeTest = 0.5
+    #dynaToRad = 0.023981 
+    #Step = 5 # rads
+    Step = 460 # convert it to dynamexiel commands
+    testTime = 0.5
+    timeBeforeTest = 0.25
 
     DesiredVel = Twist()
     DesiredVel.linear.x  = 0
@@ -241,9 +241,9 @@ def main():
     db["timeListY"]   = timeListY
     db["timeListyaw"] = timeListyaw
 
-    db["stepListX"]   = np.array(stepListX)*dynaToRad
-    db["stepListY"]   = np.array(stepListY)*dynaToRad
-    db["stepListyaw"] = np.array(stepListyaw)*dynaToRad
+    db["stepListX"]   = np.array(stepListX)#*dynaToRad
+    db["stepListY"]   = np.array(stepListY)#*dynaToRad
+    db["stepListyaw"] = np.array(stepListyaw)#*dynaToRad
     
     db["testStartX"] = testStartX
     db["testStartY"] = testStartY

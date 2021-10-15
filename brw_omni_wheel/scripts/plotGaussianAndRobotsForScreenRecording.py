@@ -99,10 +99,10 @@ def main():
     rate = rospy.Rate(10)
 
     # Map parameters
-    minLimX = 0.095
-    minLimY = 0.295
-    maxLimX = 4.1656
-    maxLimY = 2.4003
+    minLimX = 0
+    minLimY = 0
+    maxLimX = 4.2
+    maxLimY = 2.67
 
     maxPPMplot = 15
 
@@ -173,6 +173,7 @@ def main():
         conArrayTrue[conArrayTrue > maxPPMplot] = maxPPMplot
 
     fig, ax = plt.subplots()
+    fig.set_size_inches(8, 4.5, forward=True)
     while not rospy.is_shutdown():
         if SpawnUAV1:
             Robot1_poseXft = Robot1_pose.pose.position.x

@@ -46,6 +46,12 @@ global Robot3_pose
 global Robot4_pose
 global Robot5_pose
 
+global Robot1_particles
+global Robot2_particles
+global Robot3_particles
+global Robot4_particles
+global Robot5_particles
+
 global particlesCent
 global gaussianMsg
 
@@ -54,6 +60,13 @@ Robot2_pose = PoseStamped()
 Robot3_pose = PoseStamped()
 Robot4_pose = PoseStamped()
 Robot5_pose = PoseStamped()
+
+Robot1_particles = particles()
+Robot2_particles = particles()
+Robot3_particles = particles()
+Robot4_particles = particles()
+Robot5_particles = particles()
+
 plume_pose  = PoseStamped()
 
 estimatedGaussianCent = estimatedGaussian()
@@ -83,6 +96,27 @@ def Robot4_pose_cb(pose_cb_msg):
 def Robot5_pose_cb(pose_cb_msg):
     global Robot5_pose
     Robot5_pose = pose_cb_msg
+
+
+def Robot1_particles_cb(particles_msg):
+    global Robot1_particles
+    Robot1_particles = particles_msg
+
+def Robot2_particles_cb(particles_msg):
+    global Robot2_particles
+    Robot2_particles = particles_msg
+
+def Robot3_particles_cb(particles_msg):
+    global Robot3_particles
+    Robot3_particles = particles_msg
+
+def Robot4_particles_cb(particles_msg):
+    global Robot4_particles
+    Robot4_particles = particles_msg
+
+def Robot5_particles_cb(particles_msg):
+    global Robot5_particles
+    Robot5_particles = particles_msg
 
 
 def gaussian_cb(gaussian_cb_msg):
@@ -131,30 +165,35 @@ def main():
     # Set up subscriptions
     if SpawnUAV1:
         rospy.Subscriber("/mocap_node/Robot_1/pose", PoseStamped, Robot1_pose_cb)
+        rospy.Subscriber("Robot_1/particles", particles, Robot1_particles_cb)
         xPltRobot1 = []
         yPltRobot1 = []
         robotList.append(1)
 
     if SpawnUAV2:
         rospy.Subscriber("/mocap_node/Robot_2/pose", PoseStamped, Robot2_pose_cb)
+        rospy.Subscriber("Robot_2/particles", particles, Robot2_particles_cb)
         xPltRobot2 = []
         yPltRobot2 = []
         robotList.append(2)
 
     if SpawnUAV3:
         rospy.Subscriber("/mocap_node/Robot_3/pose", PoseStamped, Robot3_pose_cb)
+        rospy.Subscriber("Robot_3/particles", particles, Robot3_particles_cb)
         xPltRobot3 = []
         yPltRobot3 = []
         robotList.append(3)
 
     if SpawnUAV4:
         rospy.Subscriber("/mocap_node/Robot_4/pose", PoseStamped, Robot4_pose_cb)
+        rospy.Subscriber("Robot_4/particles", particles, Robot4_particles_cb)
         xPltRobot4 = []
         yPltRobot4 = []
         robotList.append(4)
 
     if SpawnUAV5:
         rospy.Subscriber("/mocap_node/Robot_5/pose", PoseStamped, Robot5_pose_cb)
+        rospy.Subscriber("Robot_5/particles", particles, Robot5_particles_cb)
         xPltRobot5 = []
         yPltRobot5 = []
         robotList.append(5)
@@ -237,6 +276,24 @@ def main():
         if SpawnUAV5 == 1:
             plt.plot(xPltRobot5, yPltRobot5, color='crimson')
             plt.plot(Robot5_poseXft, Robot5_poseYft, 'D', markersize=10, color='crimson')
+
+
+
+        if SpawnUAV1 == 1:
+            plt.plot(Robot1_particles.X,Robot1_particles.Y,'.', color='lime')
+
+        if SpawnUAV2 == 1:
+            plt.plot(Robot1_particles.X,Robot1_particles.Y,'.', color='hotpink')
+
+        if SpawnUAV3 == 1:
+            plt.plot(Robot1_particles.X,Robot1_particles.Y,'.', color='cyan')
+
+        if SpawnUAV4 == 1:
+            plt.plot(Robot1_particles.X,Robot1_particles.Y,'.', color='red')
+
+        if SpawnUAV5 == 1:
+            plt.plot(Robot1_particles.X,Robot1_particles.Y,'.', color='crimson')
+
 
         plt.axis("tight")  # gets rid of white border
         plt.margins(x=0)
