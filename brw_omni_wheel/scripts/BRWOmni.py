@@ -73,7 +73,7 @@ def main():
     justHitWaypoint = False
     firstWaypointFlag = False
     optimalTimeToWaypoint = 20
-    maxVelocity = 0.8
+    maxVelocity = 0.1
 
     DesiredWaypoint = PoseStamped()
 
