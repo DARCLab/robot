@@ -9,7 +9,7 @@
     <param name="frequency" value="1" type="double"/>
     <param name="Robot_ID" value="$(arg RobotID)" type="int"/>
     <param name="platformSim" type="bool" value="True"/>
-<!-- <node pkg="rosbag" type="record" args="-O mps_data_launch.bag mps_data" name="mps_record_data"/> --> 
+<!-- <node pkg="rosbag" type="record" args="-O mps_data_launch.bag mps_data" name="mps_record_data"/>-->  
 
   </group>
 </launch>

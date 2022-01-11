@@ -59,11 +59,11 @@ def main():
 
     #Get parameters
     RobotID=rospy.get_param("RobotID")
-    subToR1Pose = rospy.get_param("/subToR1Pose")
-    subToR2Pose = rospy.get_param("/subToR2Pose")
-    subToR3Pose = rospy.get_param("/subToR3Pose")
-    subToR4Pose = rospy.get_param("/subToR4Pose")
-    subToR5Pose = rospy.get_param("/subToR5Pose")
+    subToR1Pose = rospy.get_param("/subToR1Pose",False)
+    subToR2Pose = rospy.get_param("/subToR2Pose",False)
+    subToR3Pose = rospy.get_param("/subToR3Pose",False)
+    subToR4Pose = rospy.get_param("/subToR4Pose",False)
+    subToR5Pose = rospy.get_param("/subToR5Pose",False)
 
     # Set up subscriptions
     firstString = "/mocap_node/Robot_"
