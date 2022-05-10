@@ -27,6 +27,15 @@ avoid4_pose = PoseStamped()
 global R_pos_flag
 R_pos_flag = False
 
+global gas1_pose
+gas1_pose = PoseStamped()
+
+global gas2_pose
+gas2_pose = PoseStamped()
+
+global gas3_pose
+gas3_pose = PoseStamped()
+
 
 #-------------- Callback Functions----------
 def robot_pose_cb(pose_cb_msg):
@@ -51,6 +60,19 @@ def avoid4_pose_cb(avoid4_pose_cb_msg):
     global avoid4_pose
     avoid4_pose = avoid4_pose_cb_msg
 
+def gas1_cb(gas1_cb_msg):
+    global gas1_pose
+    gas1_pose = gas1_cb_msg
+
+def gas2_cb(gas2_cb_msg):
+    global gas2_pose
+    gas2_pose = gas2_cb_msg
+
+def gas3_cb(gas3_cb_msg):
+    global gas3_pose
+    gas3_pose = gas3_cb_msg
+
+
 
 #---------------- Main -------------------
 def main():
@@ -65,12 +87,22 @@ def main():
     subToR4Pose = rospy.get_param("/subToR4Pose",False)
     subToR5Pose = rospy.get_param("/subToR5Pose",False)
 
+    avoidGas1 = rospy.get_param("/avoidGas1",False)
+    avoidGas2 = rospy.get_param("/avoidGas2",False)
+    avoidGas3 = rospy.get_param("/avoidGas3",False)
+
     # Set up subscriptions
     firstString = "/mocap_node/Robot_"
     secondString = str(RobotID)
     thirdString = "/pose"
     fullString = firstString + secondString + thirdString #this allows each robot to know itself
     rospy.Subscriber(fullString, PoseStamped, robot_pose_cb)
+    if avoidGas1:
+        rospy.Subscriber("/mocap_node/gasLeak_1/pose", PoseStamped, gas1_cb)
+    if avoidGas2:
+        rospy.Subscriber("/mocap_node/gasLeak_2/pose", PoseStamped, gas2_cb)
+    if avoidGas3:
+        rospy.Subscriber("/mocap_node/gasLeak_3/pose", PoseStamped, gas3_cb)
 
     #Figure out all the obstacles (other robots)
     
@@ -365,10 +397,76 @@ def main():
 
                 potential_x4 = -B1 *(s+r -  d_obs4)*cos(theta4)
                 potential_y4 = -B1 *(s+r -  d_obs4) *sin(theta4)
+            
+            potential_x_g1 = 0
+            potential_y_g1 = 0
+            if avoidGas1:
+                x_obs_g1 = gas1_pose.pose.position.x
+                y_obs_g1 = gas1_pose.pose.position.y
+
+                x_error_g1 = x_obs_g1-x
+                y_error_g1 = y_obs_g1-y
+
+                d_obs_g1 = np.sqrt(x_error_g1**2+ y_error_g1**2)
+                theta_g1=atan2(y_error_g1,x_error_g1)
+
+                if d_obs_g1 > s:
+                    B1 = 0.0
+                elif (d_obs_g1< r) :
+                    B1 = 2000.00
+                else:
+                    B1 = 900.00
+
+                potential_x_g1 = -B1 *(s+r -  d_obs_g1) *cos(theta_g1)
+                potential_y_g1 = -B1 *(s+r -  d_obs_g1) *sin(theta_g1)
+
+            potential_x_g2 = 0
+            potential_y_g2 = 0
+            if avoidGas2:
+                x_obs_g2 = gas2_pose.pose.position.x
+                y_obs_g2 = gas2_pose.pose.position.y
+
+                x_error_g2 = x_obs_g2-x
+                y_error_g2 = y_obs_g2-y
+
+                d_obs_g2 = np.sqrt(x_error_g2**2+ y_error_g2**2)
+                theta_g2=atan2(y_error_g2,x_error_g2)
+
+                if d_obs_g2 > s:
+                    B1 = 0.0
+                elif (d_obs_g2< r) :
+                    B1 = 2000.00
+                else:
+                    B1 = 900.00
+
+                potential_x_g2 = -B1 *(s+r -  d_obs_g2) *cos(theta_g2)
+                potential_y_g2 = -B1 *(s+r -  d_obs_g2) *sin(theta_g2)
+
+            potential_x_g3 = 0
+            potential_y_g3 = 0
+            if avoidGas3:
+                x_obs_g3 = gas3_pose.pose.position.x
+                y_obs_g3 = gas3_pose.pose.position.y
+
+                x_error_g3 = x_obs_g3-x
+                y_error_g3 = y_obs_g3-y
+
+                d_obs_g3 = np.sqrt(x_error_g3**2+ y_error_g3**2)
+                theta_g3=atan2(y_error_g3,x_error_g3)
+
+                if d_obs_g3 > s:
+                    B1 = 0.0
+                elif (d_obs_g3< r) :
+                    B1 = 2000.00
+                else:
+                    B1 = 900.00
+
+                potential_x_g3 = -B1 *(s+r -  d_obs_g3) *cos(theta_g3)
+                potential_y_g3 = -B1 *(s+r -  d_obs_g3) *sin(theta_g3)
 
 
-            xVelg = potential_x1 + potential_x2 + potential_x3 +potential_x4
-            yVelg = potential_y1 + potential_y2 + potential_y3 + potential_y4
+            xVelg = potential_x1 + potential_x2 + potential_x3 + potential_x4 + potential_x_g1 + potential_x_g2 + potential_x_g3
+            yVelg = potential_y1 + potential_y2 + potential_y3 + potential_y4 + potential_y_g1 + potential_y_g2 + potential_y_g3
 
             Input_pot_Vel.linear.x = cos(yaw) * xVelg + sin(yaw) * yVelg
             Input_pot_Vel.linear.y = -sin(yaw) * xVelg + cos(yaw) * yVelg
